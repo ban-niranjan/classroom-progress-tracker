@@ -1,0 +1,20 @@
+.progress-charts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  margin-bottom: 30px;
+}
+
+.chart-container {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  height: 400px;
+}
+
+@media (max-width: 968px) {
+  .progress-charts {
+    grid-template-columns: 1fr;
+  }
+}

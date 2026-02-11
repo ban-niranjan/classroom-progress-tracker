@@ -1,0 +1,80 @@
+.student-list-container {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.student-list-container h3 {
+  margin: 0 0 20px 0;
+  color: #333;
+  font-size: 18px;
+}
+
+.student-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.student-item {
+  padding: 15px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.student-item:hover {
+  background: #f5f7fa;
+  border-color: #667eea;
+}
+
+.student-item.selected {
+  background: #f0f4ff;
+  border-color: #667eea;
+  border-width: 2px;
+}
+
+.student-info h4 {
+  margin: 0 0 5px 0;
+  color: #333;
+  font-size: 16px;
+}
+
+.student-info p {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.student-progress {
+  margin-top: 10px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: #e0e0e0;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 5px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  transition: width 0.5s ease;
+}
+
+.progress-text {
+  font-size: 13px;
+  color: #666;
+  font-weight: 500;
+}
+
+.no-students {
+  text-align: center;
+  color: #999;
+  padding: 20px;
+}
