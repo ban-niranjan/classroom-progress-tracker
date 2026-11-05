@@ -3,6 +3,9 @@ const jwt = require('jsonwebtoken');
 
 // Generate JWT Token
 const generateToken = (id) => {
+  if (!process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET is not configured in environment variables');
+  }
   return jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: '30d'
   });
@@ -11,9 +14,14 @@ const generateToken = (id) => {
 // Register User
 exports.register = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, password, role } = req.body;
+    const email = req.body.email ? req.body.email.trim().toLowerCase() : '';
 
     console.log('Registration attempt:', { name, email, role });
+
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Please provide email and password' });
+    }
 
     // Check if user exists
     const userExists = await User.findOne({ email });
@@ -36,6 +44,7 @@ exports.register = async (req, res) => {
     res.status(201).json({
       success: true,
       token,
+      role: user.role,
       user: {
         id: user._id,
         name: user.name,
@@ -52,7 +61,8 @@ exports.register = async (req, res) => {
 // Login User
 exports.login = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { password } = req.body;
+    const email = req.body.email ? req.body.email.trim().toLowerCase() : '';
 
     console.log('Login attempt:', email);
 
@@ -80,6 +90,7 @@ exports.login = async (req, res) => {
     res.status(200).json({
       success: true,
       token,
+      role: user.role,
       user: {
         id: user._id,
         name: user.name,

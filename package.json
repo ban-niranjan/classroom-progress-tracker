@@ -1,0 +1,11 @@
+{
+  "name": "classroom-tracker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Classroom Progress Tracker monorepo",
+  "scripts": {
+    "build": "npm install --prefix backend && npm install --prefix frontend/app && npm run build --prefix frontend/app",
+    "start": "node backend/server.js",
+    "dev": "node backend/server.js"
+  }
+}

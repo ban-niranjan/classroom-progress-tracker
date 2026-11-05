@@ -1,195 +1,168 @@
 # Classroom Progress Tracker
 
-A real-time classroom progress tracking system with instructor dashboard and student portal.
+A real-time classroom progress tracking system featuring an instructor dashboard, student portal, real-time checkpoint monitoring, and direct messaging powered by WebSockets.
 
-## Features
+---
 
-- 👨‍🏫 **Instructor Dashboard**
-  - Create and manage sessions
-  - Add custom checkpoints
-  - Real-time progress monitoring
-  - Interactive statistics (bar charts)
-  - Private chat with students
+## Architecture Overview
 
-- 👨‍🎓 **Student Portal**
-  - Join sessions with code
-  - View and complete checkpoints
-  - Track personal progress
-  - Chat with instructor
+- **Backend**: Node.js, Express 5, MongoDB Atlas (Mongoose), Socket.IO, JWT, bcrypt.
+- **Frontend**: Single-Page App built with React 19, Vite, React Router 7, Chart.js, Socket.IO Client.
+- **Unified Deployment**: Express serves the React production build (`frontend/app/dist`) as static files alongside `/api` routes and WebSocket handlers on a single port.
 
-- ⚡ **Real-Time Updates**
-  - Live progress statistics
-  - Instant chat messaging
-  - WebSocket-based communication
-
-## Tech Stack
-
-### Backend
-- Node.js
-- Express.js
-- MongoDB (Mongoose)
-- Socket.IO
-- JWT Authentication
-- bcrypt
-
-### Frontend
-- React (Vite)
-- React Router
-- Axios
-- Socket.IO Client
-- Chart.js
-- React-Chartjs-2
+---
 
 ## Prerequisites
 
-- Node.js (v20.x or higher)
-- MongoDB Atlas account (or local MongoDB)
-- npm or yarn
+- **Node.js**: v20.x or higher
+- **MongoDB Atlas**: Free Tier (M0) cluster or local MongoDB instance
+- **npm**: v10+
 
-## Installation
+---
 
-### 1. Clone the repository
-```bash
-git clone https://github.com/ban-niranjan/classroom-tracker.git
-cd classroom-tracker
-```
+## Environment Variables
 
-### 2. Backend Setup
-```bash
-cd backend
-npm install
-```
+Copy `.env.example` to `backend/.env` (or configure in your deployment dashboard):
 
-Create `.env` file in backend folder:
 ```env
 PORT=5000
-MONGODB_URI=your_mongodb_connection_string
-JWT_SECRET=your_secret_key
+MONGODB_URI=mongodb+srv://<username>:<password>@<cluster>.mongodb.net/<database>?retryWrites=true&w=majority
+JWT_SECRET=your_super_secret_jwt_key
 NODE_ENV=development
+CLIENT_URL=http://localhost:5173,http://localhost:5000
 ```
 
-### 3. Instructor Dashboard Setup
+> **Note:** Never commit real credentials or production secrets to Git.
+
+---
+
+## Local Development
+
+### 1. Install Dependencies
+From the repository root:
 ```bash
-cd ../frontend/instructor-dashboard
-npm install
+npm run build
 ```
+*(Or install individually: `cd backend && npm install`, `cd ../frontend/app && npm install`)*
 
-Create `.env` file:
-```env
-VITE_API_URL=http://localhost:5000/api
-VITE_SOCKET_URL=http://localhost:5000
-```
+### 2. Run Locally
 
-### 4. Student Portal Setup
+**Option A: Full Production Mode (Single Service)**
 ```bash
-cd ../student-portal
-npm install
+# Build frontend and start Express serving both API & UI on port 5000
+npm run build
+npm start
 ```
+Visit: [http://localhost:5000](http://localhost:5000)
 
-Create `.env` file:
-```env
-VITE_API_URL=http://localhost:5000/api
-VITE_SOCKET_URL=http://localhost:5000
-```
+**Option B: Active Development Mode (Hot Reloading)**
+1. **Terminal 1 - Backend Server**:
+   ```bash
+   cd backend
+   npm run dev
+   ```
+   Runs on `http://localhost:5000`.
 
-## Running the Application
+2. **Terminal 2 - Frontend Vite Dev Server**:
+   ```bash
+   cd frontend/app
+   npm run dev
+   ```
+   Runs on `http://localhost:5173` (proxies `/api` and `/socket.io` to `http://localhost:5000`).
 
-You need to run 3 terminals simultaneously:
+---
 
-### Terminal 1: Backend
-```bash
-cd backend
-npm run dev
-```
-Server runs on: http://localhost:5000
+## Deploy to Render (Free Web Service)
 
-### Terminal 2: Instructor Dashboard
-```bash
-cd frontend/instructor-dashboard
-npm run dev
-```
-Runs on: http://localhost:5173
+Render supports WebSockets and Node.js web services on its free tier.
 
-### Terminal 3: Student Portal
-```bash
-cd frontend/student-portal
-npm run dev
-```
-Runs on: http://localhost:5174
+### Method 1: Blueprint Deployment via `render.yaml`
+1. Push your repository to GitHub.
+2. In the Render Dashboard, click **New +** > **Blueprint**.
+3. Connect your repository (`render.yaml` will be auto-detected).
+4. Provide the required environment variables:
+   - `MONGODB_URI`: Your MongoDB Atlas connection string.
+   - `CLIENT_URL`: Optional (defaults to same-origin).
 
-## Usage
+### Method 2: Manual Web Service Setup
+1. In Render Dashboard, click **New +** > **Web Service**.
+2. Connect your Git repository.
+3. Configure the service settings:
+   - **Name**: `classroom-tracker`
+   - **Environment**: `Node`
+   - **Region**: Choose the closest region to your MongoDB Atlas cluster (e.g. `Oregon (US West)` or `Frankfurt (EU Central)`).
+   - **Branch**: `main`
+   - **Build Command**: `npm run build`
+   - **Start Command**: `npm start`
+   - **Plan**: `Free`
+   - **Health Check Path**: `/api/health`
+4. Add Environment Variables in the **Environment** tab:
+   - `NODE_ENV`: `production`
+   - `PORT`: `10000` *(or leave default, Render sets PORT automatically)*
+   - `MONGODB_URI`: `mongodb+srv://<user>:<password>@<cluster>.mongodb.net/<database>?retryWrites=true&w=majority`
+   - `JWT_SECRET`: *(Click 'Generate' or enter a secure 32+ character random string)*
+   - `CLIENT_URL`: `https://your-service-name.onrender.com`
 
-1. **Instructor**: Register at http://localhost:5173
-2. **Create Session**: Add session name and description
-3. **Add Checkpoints**: Create milestones for students
-4. **Get Session Code**: Note the generated code
-5. **Student**: Register at http://localhost:5174
-6. **Join Session**: Enter the session code
-7. **Complete Checkpoints**: Mark tasks as complete
-8. **Watch Real-Time Updates**: Instructor dashboard updates instantly!
-
-## Project Structure
-```
-classroom-tracker/
-├── backend/
-│   ├── config/
-│   ├── controllers/
-│   ├── middleware/
-│   ├── models/
-│   ├── routes/
-│   └── server.js
-├── frontend/
-│   ├── instructor-dashboard/
-│   │   └── src/
-│   │       ├── components/
-│   │       ├── pages/
-│   │       └── services/
-│   └── student-portal/
-│       └── src/
-│           ├── components/
-│           ├── pages/
-│           └── services/
-└── README.md
-```
+---
 
 ## API Endpoints
 
+### System
+- `GET /api/health` - Lightweight health check (for cold-start and uptime monitoring)
+
 ### Authentication
-- `POST /api/auth/register` - Register user
-- `POST /api/auth/login` - Login user
-- `GET /api/auth/me` - Get current user
+- `POST /api/auth/register` - Register a new account (`instructor` or `student`)
+- `POST /api/auth/login` - Authenticate and return JWT token and role
+- `GET /api/auth/me` - Get profile for currently authenticated user
 
 ### Sessions
-- `GET /api/sessions` - Get all sessions
-- `POST /api/sessions` - Create session (instructor)
-- `POST /api/sessions/join` - Join session (student)
-- `GET /api/sessions/:id` - Get session details
+- `GET /api/sessions` - List sessions
+- `POST /api/sessions` - Create a session (Instructor)
+- `GET /api/sessions/:id` - Fetch session details
+- `POST /api/sessions/join` - Join session with 6-character code (Student)
 
-### Checkpoints
-- `GET /api/sessions/:id/checkpoints` - Get checkpoints
-- `POST /api/sessions/:id/checkpoints` - Add checkpoint
-- `PUT /api/checkpoints/:id` - Update checkpoint
-- `DELETE /api/checkpoints/:id` - Delete checkpoint
+### Checkpoints & Progress
+- `GET /api/sessions/:sessionId/checkpoints` - List checkpoints for session
+- `POST /api/sessions/:sessionId/checkpoints` - Add checkpoint (Instructor)
+- `POST /api/progress` - Update checkpoint completion status (Student)
+- `GET /api/progress/session/:sessionId` - Get session-wide progress statistics (Instructor)
+- `GET /api/progress/session/:sessionId/my-progress` - Get student's personal progress
 
-### Progress
-- `POST /api/progress` - Update progress
-- `GET /api/progress/session/:id` - Get session progress
+### Real-Time Chat & Sockets
+- `POST /api/messages` - Send a message
+- `GET /api/messages/session/:sessionId/user/:userId` - Fetch message history
+- **Socket.IO Events**: `join_session`, `join_user`, `progress_updated`, `new_message`
 
-### Messages
-- `POST /api/messages` - Send message
-- `GET /api/messages/session/:id/user/:userId` - Get chat history
+---
 
-## Contributing
+## Project Structure
 
-Pull requests are welcome! For major changes, please open an issue first.
+```
+classroom-tracker/
+├── package.json               # Root scripts (build, start)
+├── render.yaml                # Render Blueprint deployment definition
+├── .env.example               # Root environment variable template
+├── backend/
+│   ├── config/                # Mongoose database connection
+│   ├── controllers/           # Auth, session, progress, checkpoint, message controllers
+│   ├── middleware/            # JWT authentication & authorization
+│   ├── models/                # User, Session, Checkpoint, Enrollment, Progress, Message
+│   ├── routes/                # Express API routes
+│   ├── server.js              # Express app + Socket.IO + static SPA handler + /api/health
+│   └── package.json
+└── frontend/
+    └── app/                   # Unified React + Vite Single-Page Application
+        ├── index.html
+        ├── vite.config.js     # Dev server proxy configuration
+        ├── package.json
+        └── src/
+            ├── components/    # Reusable UI (ChatBox, ProgressCharts, StudentList, etc.)
+            ├── pages/         # Login, Instructor views, Student views
+            └── services/      # Axios API, Socket.IO, Auth, and Session services
+```
+
+---
 
 ## License
 
 MIT
-
-
-## Acknowledgments
-
-- Built as a learning project
-- Uses Chart.js for beautiful visualizations
-- Real-time powered by Socket.IO
